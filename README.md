@@ -1,5 +1,6 @@
 # RoutePlanning
 By Chris Cho, Josh Cho, Alhassan Natah
+
 This repository consists of a website where mobile grocery stores or food trucks can plan their route through the city. The project was done as the final project for the course ENGO 551.
 
 <Insert website link>
