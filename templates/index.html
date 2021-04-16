@@ -35,6 +35,12 @@
       <p>Please upload a csv file of list of addresses to accomodate on the trip</p>
       <P>The page can be toggled for the list of addresses and the location of the stops and its route</P>
       <br/>
+      <div>
+      <label for="addresslist">Upload your address list:</label>
+      <input type="file"
+         id="addresses" name="addresslist"
+         accept=".csv">
+      </div>
     </div>
 
     <div class="col-md-9">
@@ -44,13 +50,36 @@
   </div>
 
   <script>
-  mapboxgl.accessToken = 'pk.eyJ1IjoiY2hyaXNrY2NobyIsImEiOiJja200ZGE3YzEwM2hhMm9wbThweHVpbmdnIn0.WK32LPKYrtmevgs6emkIrQ';
-  var map = new mapboxgl.Map({
-  container: 'map',
-  style: 'mapbox://styles/mapbox/light-v10',
-  center: [-114.0719,51.0447],
-  zoom: 12
-  });
+    mapboxgl.accessToken = 'pk.eyJ1IjoiY2hyaXNrY2NobyIsImEiOiJja200ZGE3YzEwM2hhMm9wbThweHVpbmdnIn0.WK32LPKYrtmevgs6emkIrQ';
+    var map = new mapboxgl.Map({
+    container: 'map',
+    style: 'mapbox://styles/mapbox/light-v10',
+    center: [-114.0719,51.0447],
+    zoom: 12
+    });
+
+    //--------------------- READ CSV FILE ----------------------------//
+    var addresslist = document.getElementById("addresses");
+
+    // Function which reads file as text when called.
+    readFile = function () {
+        var reader = new FileReader();
+        reader.onload = function () {
+            let addressliststr = reader.result;
+            var addresslist = addressliststr.split("\n");
+            console.log(addresslist);
+
+            // Add stuff here for coordinate querying, clustering, etc.
+
+        };
+        // start reading the file. When it is done, calls the onload event defined above.
+        reader.readAsText(addresslist.files[0]);
+    };
+
+    // Read file by calling readFile
+    addresslist.addEventListener('change', readFile);
+    //------------------- READ CSV FILE END --------------------------//
+
   </script>
 
   </body>
