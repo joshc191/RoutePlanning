@@ -1,10 +1,16 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-
   <link href='https://api.mapbox.com/mapbox-gl-js/v2.1.1/mapbox-gl.css' rel='stylesheet' />
   <script src='https://api.mapbox.com/mapbox-gl-js/v2.1.1/mapbox-gl.js'></script>
   <script src='https://api.mapbox.com/mapbox.js/plugins/turf/v3.0.11/turf.min.js'></script>
+
+  <script src="https://api.tiles.mapbox.com/mapbox-gl-js/v2.1.1/mapbox-gl.js"></script>
+  <link href="https://api.tiles.mapbox.com/mapbox-gl-js/v2.1.1/mapbox-gl.css" rel="stylesheet" />
+
+  <script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
+  <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.2.1/mapbox-gl-draw.js"></script>
+  <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.2.1/mapbox-gl-draw.css" type="text/css">
 
   <!--Bootstrap-->
   <meta charset="utf-8">
@@ -15,11 +21,9 @@
   <link rel="stylesheet" href="styles.css">
 
   <title>ENGO 551 Final Project</title>
-
 </head>
 
 <body>
-
   <!--navigation bar-->
   <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #e3f2fd;">
     <a class="navbar-brand" href="index.html">
@@ -35,52 +39,212 @@
       <p>Please upload a csv file of list of addresses to accomodate on the trip</p>
       <P>The page can be toggled for the list of addresses and the location of the stops and its route</P>
       <br/>
-      <div>
-      <label for="addresslist">Upload your address list:</label>
-      <input type="file"
-         id="addresses" name="addresslist"
-         accept=".csv">
-      </div>
+
+      <!-- Create form for address+stop input -->
+      <form id="form">
+        <div>
+          <label for="addresslist">Upload your address list (csv):</label>
+          <input type="file" id="addresses" name="addresslist" accept=".csv"><br><br>
+        </div>
+        <div>
+        <label for="stopnum">Number of stops:</label>
+        <input type="range" min="1" max="20" value="5" id="stopnum" name="stopnum"
+      	 step="1" oninput="outputUpdate(value)">
+        <output for="stopnum" id="stopnum_out">5</output><br><br>
+        </div>
+        <button type='button' id='submit1'>submit</button>
+      </form>
     </div>
 
+    <!-- Add map container element -->
     <div class="col-md-9">
       <div id="map"></div>
     </div>
-
   </div>
 
   <script>
+    // Create map container
     mapboxgl.accessToken = 'pk.eyJ1IjoiY2hyaXNrY2NobyIsImEiOiJja200ZGE3YzEwM2hhMm9wbThweHVpbmdnIn0.WK32LPKYrtmevgs6emkIrQ';
     var map = new mapboxgl.Map({
-    container: 'map',
-    style: 'mapbox://styles/mapbox/light-v10',
-    center: [-114.0719,51.0447],
-    zoom: 12
+      container: 'map',
+      style: 'mapbox://styles/mapbox/light-v10',
+      center: [-114.0719,51.0447],
+      zoom: 12
     });
 
-    //--------------------- READ CSV FILE ----------------------------//
-    var addresslist = document.getElementById("addresses");
+    //-------------Define Functions------------------//
+
+    // Function to add label for the number of step slider
+    function outputUpdate(stopnum) {
+    	document.querySelector('#stopnum_out').value = stopnum;
+    }
 
     // Function which reads file as text when called.
-    readFile = function () {
-        var reader = new FileReader();
-        reader.onload = function () {
-            let addressliststr = reader.result;
-            var addresslist = addressliststr.split("\n");
-            console.log(addresslist);
+    async function readFile() {
+      var reader = new FileReader();
+      var inputform = document.getElementById("addresses");
+      reader.onload = function () {
+        let addressliststr = reader.result;
+        var addresslist = addressliststr.split("\n");
 
-            // Add stuff here for coordinate querying, clustering, etc.
-
-        };
-        // start reading the file. When it is done, calls the onload event defined above.
-        reader.readAsText(addresslist.files[0]);
+        var coords = getAddress(addresslist);
+      };
+      // start reading the file. When it is done, calls the onload event defined above.
+      reader.readAsText(inputform.files[0]);
     };
 
+    // Function to get coordinates of each address from OpenCalgary API
+    function getlink (address) {
+      let link = "https://data.calgary.ca/resource/9zvu-p8uz.geojson?$q=";
+      link+= "'";
+      link+= address;
+      link+="'";
+      return link;
+    };
+
+    async function getAddress(addresslist) {
+      var AdjFeatCollec = {type: 'FeatureCollection',features: []};
+      var bigdata = {type: 'FeatureCollection',features: []};
+
+      // Add individual geojson urls to a single feat collection
+      for (i = 0; i < addresslist.length;i++) {
+        url4edit = getlink(addresslist[i]);
+
+        const response = await fetch(url4edit);
+        var data1 = await response.json();
+        bigdata.features.push(data1.features[0]);
+        //console.log(data1.features[0].properties.address);//check to see if we can access the addresses
+      }
+      //console.log(bigdata);//based on original CSV
+      //console.log(bigdata.features.length);//Check to see if size matches original
+
+      var mycount =0;
+      for (i = 0; i < bigdata.features.length;i++) {//Adjusted feat collection to work with turf
+        mycount= mycount+1;
+
+        var feat = {
+          'type': 'Feature',
+          'properties': {
+            'Name': bigdata.features[i].properties.street_name,
+            'Address': bigdata.features[i].properties.address
+          },
+          'geometry': {
+            'type': 'Point',
+            'coordinates': [parseFloat(bigdata.features[i].properties.longitude),
+            parseFloat(bigdata.features[i].properties.latitude)]
+          }
+        };
+        AdjFeatCollec.features.push(feat);
+      };
+
+      console.log(AdjFeatCollec);//console log of the final of the loaded csv
+
+      // Add an image to use as a custom marker
+      map.loadImage('https://docs.mapbox.com/mapbox-gl-js/assets/custom_marker.png', function (error, image) {
+        if (error) throw error;
+        map.addImage('custom-marker', image);
+        // Add a GeoJSON source with 2 points
+        map.addSource('points', {
+          'type': 'geojson',
+          'data': AdjFeatCollec
+        });
+
+        // Add a symbol layer
+        map.addLayer({
+          'id': 'points',
+          'type': 'symbol',
+          'source': 'points',
+          'layout': {
+            'icon-image': 'custom-marker',
+            'icon-size': 0.35,
+            // get the title name from the source's "title" property
+            'text-field': ['get', 'title'],
+            'text-font': [
+            'Open Sans Semibold',
+            'Arial Unicode MS Bold'],
+            'text-offset': [0, 1.25],
+            'text-anchor': 'top'
+          }
+        });
+      });
+
+      clusterStops(AdjFeatCollec);
+    };
+
+    // Cluster addresses into stops using K-means Clustering
+    function clusterStops(AdjFeatCollec) {
+      //var points = turf.randomPoint(100, {bbox: [ -114.304388, 50.853, -113.865450,51.215771]}); //test data
+
+      var points = AdjFeatCollec;
+      // console.log(points);//console log of the clustered points
+      var stopnum = document.getElementById("stopnum").value;
+      var options = {numberOfClusters: stopnum}; //amount of clusters, replace with user input
+      var clustered = turf.clustersKmeans(points, options);
+
+      var total = 0 //counting the number of clusters, remove once user input added
+      turf.clusterEach(clustered, 'cluster', function () {
+        total++;
+      });
+      console.log(total); //console log of the total amount of clusters
+
+      var values = {type: 'FeatureCollection',features: []};
+      for (i = 0; i < total;i++) {//Adding individual geojson urls to  a single feat collection
+        var cluster = turf.getCluster(clustered, {cluster: i});
+        //var clustercoord = cluster.features[0].properties.centroid;
+
+        var feat = {
+          'type': 'Feature',
+          'properties': {
+            'Name': cluster.features[0].properties.cluster //which cluster
+          },
+          'geometry': {
+            'type': 'Point',
+            'coordinates': cluster.features[0].properties.centroid //cluster coordinates
+          }
+        };
+        values.features.push(feat);
+      }
+      console.log(values);//console log of the clustered points
+
+      // Add stop markers to map
+      // Add an image to use as a custom marker
+      map.loadImage('https://cdn0.iconfinder.com/data/icons/small-n-flat/24/678111-map-marker-512.png', function (error, image) {
+        if (error) throw error;
+        map.addImage('custom-mark', image);
+        // Add a GeoJSON source with 2 points
+        map.addSource('point', {
+          'type': 'geojson',
+          'data': values
+        });
+
+        // Add a symbol layer
+        map.addLayer({
+          'id': 'point',
+          'type': 'symbol',
+          'source': 'point',
+          'layout': {
+            'icon-image': 'custom-mark',
+            'icon-size': 0.05,
+            // get the title name from the source's "title" property
+            'text-field': ['get', 'title'],
+            'text-font': [
+            'Open Sans Semibold',
+            'Arial Unicode MS Bold'
+            ],
+            'text-offset': [0, 1.25],
+            'text-anchor': 'top'
+          }
+        });
+      });
+    }
+
+    //------------End function definition-------------//
+
+    // Get file containing list of addresses
+    var submit = document.getElementById("submit1");
+
     // Read file by calling readFile
-    addresslist.addEventListener('change', readFile);
-    //------------------- READ CSV FILE END --------------------------//
-
-  </script>
-
+    submit.addEventListener('click', readFile);
+    </script>
   </body>
   </html>

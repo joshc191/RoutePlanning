@@ -19,7 +19,11 @@ def index():
 @app.route("/api/<coords>")
 def api(coords):
     # stuff
-
     return jsonify({
         "stuff": stuff
     })
+
+@app.route("/docs")
+def docs():
+    # stuff
+    return render_template("docs.html")
