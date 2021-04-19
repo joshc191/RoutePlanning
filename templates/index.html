@@ -155,7 +155,8 @@
       // Add data source
       map.addSource('points', {
         'type': 'geojson',
-        'data': AdjFeatCollec
+        'data': AdjFeatCollec,
+        'tolerance': 0  // Lower number means icon stays when zoomed out
       });
 
       // Add a symbol layer
@@ -166,6 +167,7 @@
         'layout': {
           'icon-image': 'custom-marker',
           'icon-size': 0.35,
+          'icon-allow-overlap': true,
           // get the title name from the source's "title" property
           'text-field': ['get', 'title'],
           'text-font': [
@@ -231,7 +233,8 @@
 
       map.addSource('point', {
         'type': 'geojson',
-        'data': values
+        'data': values,
+        'tolerance': 0
       });
 
         // Add a symbol layer
@@ -242,6 +245,7 @@
         'layout': {
           'icon-image': 'custom-mark',
           'icon-size': 0.05,
+          'icon-allow-overlap': true,
           // get the title name from the source's "title" property
           'text-field': ['get', 'title'],
           'text-font': [
