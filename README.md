@@ -10,24 +10,30 @@ The website's main page contains a webmap of Calgary, along with a form.
 - Users can input a list of locations (lat,lon) into the form.
 - The website will use clustering and shortest path algorithms to find the most efficient route for the truck.
 
-The website also has a RESTful API backend, where users can make GET requests to the website by providing a list of coordinates in GeoJSON format. The website will output a list of coordinates for the route in GEOJSON polyline format.
+The website also has a RESTful API backend, where users can make GET requests to the website by providing a list of coordinates in GeoJSON format. The website will output a list of coordinates for the route in GeoJSON polyline format.
 
-##TO DO
+## TO DO
 
 - Design website (CSS)
 - Set up flask
 
 - index.html
-  - Add webmap
-    - After submitting, show each address + route
-  - Add form for user input (upload csv + choose stop numbers)
-  - Query OpenCalgary for coordinates of addresses
-  - Cluster addresses into stops
   - Get shortest path through address for ordering
   - Mapbox directions through each stop
+  - Add sidebar for directions + route travel time
 
 - API.html
   - Set up user GET requests
-  
+
 - API_docs.html
   - Document API
+
+- Misc
+  - Make marker sizes scale with zoom
+  - Improve csv reader
+    - Handle blank lines at end of files
+    - Handle invalid addresses
+  - Add table/widget to allow for address list changes within website
+  - Add labels for address markers
+
+- Current Bugs

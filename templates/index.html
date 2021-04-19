@@ -113,12 +113,9 @@
         const response = await fetch(url4edit);
         var data1 = await response.json();
         bigdata.features.push(data1.features[0]);
-        //console.log(data1.features[0].properties.address);//check to see if we can access the addresses
       }
-      //console.log(bigdata);//based on original CSV
-      //console.log(bigdata.features.length);//Check to see if size matches original
 
-      var mycount =0;
+      var mycount = 0;
       for (i = 0; i < bigdata.features.length;i++) {//Adjusted feat collection to work with turf
         mycount= mycount+1;
 
@@ -139,35 +136,45 @@
 
       console.log(AdjFeatCollec);//console log of the final of the loaded csv
 
-      // Add an image to use as a custom marker
-      map.loadImage('https://docs.mapbox.com/mapbox-gl-js/assets/custom_marker.png', function (error, image) {
-        if (error) throw error;
-        map.addImage('custom-marker', image);
-        // Add a GeoJSON source with 2 points
-        map.addSource('points', {
-          'type': 'geojson',
-          'data': AdjFeatCollec
-        });
 
-        // Add a symbol layer
-        map.addLayer({
-          'id': 'points',
-          'type': 'symbol',
-          'source': 'points',
-          'layout': {
-            'icon-image': 'custom-marker',
-            'icon-size': 0.35,
-            // get the title name from the source's "title" property
-            'text-field': ['get', 'title'],
-            'text-font': [
-            'Open Sans Semibold',
-            'Arial Unicode MS Bold'],
-            'text-offset': [0, 1.25],
-            'text-anchor': 'top'
-          }
+      // Add addresses to map as markers
+      if (!map.hasImage('custom-marker')) { // If the image hasn't been added yet
+        map.loadImage('https://docs.mapbox.com/mapbox-gl-js/assets/custom_marker.png', function (error, image) {
+          if (error) throw error;
+          // Add an image to use as a custom marker
+          map.addImage('custom-marker', image);
+          // Add a GeoJSON source with 2 points
         });
+      }
+
+      // Remove existing layer
+      if (typeof map.getLayer('points') !== 'undefined')  {
+        map.removeLayer('points').removeSource('points');
+      }
+
+      // Add data source
+      map.addSource('points', {
+        'type': 'geojson',
+        'data': AdjFeatCollec
       });
 
+      // Add a symbol layer
+      map.addLayer({
+        'id': 'points',
+        'type': 'symbol',
+        'source': 'points',
+        'layout': {
+          'icon-image': 'custom-marker',
+          'icon-size': 0.35,
+          // get the title name from the source's "title" property
+          'text-field': ['get', 'title'],
+          'text-font': [
+          'Open Sans Semibold',
+          'Arial Unicode MS Bold'],
+          'text-offset': [0, 1.25],
+          'text-anchor': 'top'
+        }
+      });
       clusterStops(AdjFeatCollec);
     };
 
@@ -207,34 +214,43 @@
       console.log(values);//console log of the clustered points
 
       // Add stop markers to map
-      // Add an image to use as a custom marker
-      map.loadImage('https://cdn0.iconfinder.com/data/icons/small-n-flat/24/678111-map-marker-512.png', function (error, image) {
-        if (error) throw error;
-        map.addImage('custom-mark', image);
-        // Add a GeoJSON source with 2 points
-        map.addSource('point', {
-          'type': 'geojson',
-          'data': values
+
+      // Add addresses to map as markers
+      if (!map.hasImage('custom-marker')) { // If the image hasn't been added yet
+        map.loadImage('https://cdn0.iconfinder.com/data/icons/small-n-flat/24/678111-map-marker-512.png', function (error, image) {
+          if (error) throw error;
+          // Add an image to use as a custom marker
+          map.addImage('custom-mark', image);
         });
+      }
+
+      // Remove existing layer
+      if (typeof map.getLayer('point') !== 'undefined')  {
+        map.removeLayer('point').removeSource('point');
+      }
+
+      map.addSource('point', {
+        'type': 'geojson',
+        'data': values
+      });
 
         // Add a symbol layer
-        map.addLayer({
-          'id': 'point',
-          'type': 'symbol',
-          'source': 'point',
-          'layout': {
-            'icon-image': 'custom-mark',
-            'icon-size': 0.05,
-            // get the title name from the source's "title" property
-            'text-field': ['get', 'title'],
-            'text-font': [
-            'Open Sans Semibold',
-            'Arial Unicode MS Bold'
-            ],
-            'text-offset': [0, 1.25],
-            'text-anchor': 'top'
-          }
-        });
+      map.addLayer({
+        'id': 'point',
+        'type': 'symbol',
+        'source': 'point',
+        'layout': {
+          'icon-image': 'custom-mark',
+          'icon-size': 0.05,
+          // get the title name from the source's "title" property
+          'text-field': ['get', 'title'],
+          'text-font': [
+          'Open Sans Semibold',
+          'Arial Unicode MS Bold'
+          ],
+          'text-offset': [0, 1.25],
+          'text-anchor': 'top'
+        }
       });
     }
 
