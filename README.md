@@ -7,10 +7,10 @@ This repository consists of a website where mobile grocery stores or food trucks
 
 ## Description
 The website's main page contains a webmap of Calgary, along with a form.
-- Users can input a list of locations (lat,lon) into the form.
+- Users can input a list of locations (customer addresses) into the form.
 - The website will use clustering and shortest path algorithms to find the most efficient route for the truck.
 
-The website also has a RESTful API backend, where users can make GET requests to the website by providing a list of coordinates in GeoJSON format. The website will output a list of coordinates for the route in GeoJSON polyline format.
+The website also has a RESTful API backend, where users can make GET requests to the website by providing a list of addresses and number of stops. The website will output a list of coordinates for the route in GeoJSON polyline.
 
 ## TO DO
 
@@ -18,8 +18,8 @@ The website also has a RESTful API backend, where users can make GET requests to
 - Set up flask
 
 - index.html
-  - Get shortest path through address for ordering
-  - Mapbox directions through each stop
+  - Get shortest path through stops for ordering, starting from first address
+  - Get Mapbox directions through each stop
   - Add sidebar for directions + route travel time
 
 - API.html
@@ -29,7 +29,6 @@ The website also has a RESTful API backend, where users can make GET requests to
   - Document API
 
 - Misc
-  - Make marker sizes scale with zoom
   - Improve csv reader
     - Handle blank lines at end of files
     - Handle invalid addresses
