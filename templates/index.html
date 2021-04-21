@@ -288,6 +288,66 @@
 
     }
 
+    //function to format the coordinates so it can be used in map matching query
+    function updateRoute() {
+      //set profile
+      var profile = "driving";
+      //get coords that were drawn (need to replace with coordinates)
+      var data = stops_ord;
+      var lastFeature = data.features.length - 1;
+      var coords = data.features[lastFeature].geometry.coordinates;
+      //Format the new coordinates
+      var newCoords = coords.join(';');
+      //set radius for each coordinate pair as 25 meters
+      var radius = [];
+      coords.forEach(element => {
+        radius.push(25);
+      });
+      getMatch(newCoords,radius,profile)
+    }
+
+    function getMatch(coordinates, radius, profile) {
+      var radiuses = radius.join(';');
+      var query = 'https://api.mapbox.com/matching/v5/mapbox/' + profile + '/' + coordinates + '?geometries=geojson&radiuses=' + radiuses + '&steps=true&access_token=' + mapboxgl.accessToken;
+      $.ajax({
+        method: 'GET',
+        url: query
+      }).done(function(data) {
+        //get coordinates from response
+        var coords = data.matching[0].geometry;
+        //console.log(coords);
+        addRoute(coords)
+      });
+    }
+
+    function addRoute(coords) {
+      if (map.getSource('route')) {
+        map.removeLayer('route')
+        map.removeSource('route')
+      } else {
+        map.addLayer({
+          "id": "route",
+          "type": "line",
+          "source": {
+            "type": "geojson",
+            "data": {
+              "type": "Feature",
+              "properties": {},
+              "geometry": coords
+            }
+          },
+          "layout": {
+            "line-join": "round",
+            "line-cap": "round"
+          },
+          "paint": {
+            "line-color": "#03AA46",
+            "line-width": 8,
+            "line-opacity": 0.8
+          }
+        });
+      };
+    }
     //------------End function definition-------------//
 
     // Get file containing list of addresses
