@@ -1,10 +1,11 @@
 import os
 import requests
 
-from flask import Flask, session, render_template, redirect, request, jsonify
+from flask import Flask, session, render_template, redirect, request, jsonify, url_for
 from flask_session import Session
 
-from functions import getRoute
+from functions import getRoute, travellingSalesman, coordStringtoDouble
+import numpy as np
 
 app = Flask(__name__)
 
@@ -27,3 +28,10 @@ def api(query):
 def docs():
     # stuff
     return render_template("docs.html")
+
+#background process to compute re-order stops (travelling salesman solution)
+@app.route('/reorder_stops/<coords>')
+def reorder_stops(coords):
+    coords_arr = coordStringtoDouble(coords)
+    route = travellingSalesman(coords_arr)
+    return jsonify({"coordinates": np.array2string(route)})

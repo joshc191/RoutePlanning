@@ -18,7 +18,8 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
 
   <!--CSS sheet-->
-  <link rel="stylesheet" href="styles.css">
+  <!-- <link rel="stylesheet" href="styles.css"> -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles/styles.css') }}">
 
   <title>ENGO 551 Final Project</title>
 </head>
@@ -27,7 +28,8 @@
   <!--navigation bar-->
   <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #e3f2fd;">
     <a class="navbar-brand" href="index.html">
-      <img src="delivery.png" height="60" width="60" alt="">
+      <!-- <img src="delivery.png" height="60" width="60" alt=""> -->
+      <img src="{{ url_for('static', filename='delivery.png') }}" height="60" width="60" alt="">
       Route Planning for Mobile Grocery Store
     </a>
   </nav>
@@ -181,7 +183,7 @@
     };
 
     // Cluster addresses into stops using K-means Clustering
-    function clusterStops(AdjFeatCollec) {
+    async function clusterStops(AdjFeatCollec) {
       //var points = turf.randomPoint(100, {bbox: [ -114.304388, 50.853, -113.865450,51.215771]}); //test data
 
       var points = AdjFeatCollec;
@@ -197,6 +199,7 @@
       console.log(total); //console log of the total amount of clusters
 
       var values = {type: 'FeatureCollection',features: []};
+      var stops = [];
       for (i = 0; i < total;i++) {//Adding individual geojson urls to  a single feat collection
         var cluster = turf.getCluster(clustered, {cluster: i});
         //var clustercoord = cluster.features[0].properties.centroid;
@@ -212,6 +215,7 @@
           }
         };
         values.features.push(feat);
+        stops.push(cluster.features[0].properties.centroid);
       }
       console.log(values);//console log of the clustered points
 
@@ -256,6 +260,32 @@
           'text-anchor': 'top'
         }
       });
+
+      var response2 = await fetch("/reorder_stops/" + stops.toString());
+      stops_json = await response2.json();
+
+      stops_str = stops_json["coordinates"];
+      stops_str = stops_str.replace(/\[/g, '');
+      stops_str = stops_str.replace(/\]/g, '');
+      stops_str = stops_str.split("\n");
+
+      var stops_ord = {type: 'FeatureCollection',features: []};
+      for (i = 0; i < stops_str.length; i++) {//Adding individual geojson urls to  a single feat collection
+        let coord_i = stops_str[i].split("   ");
+        let feat = {
+          'type': 'Feature',
+          'properties': {
+            'Name': 'Stop ' + i.toString()
+          },
+          'geometry': {
+            'type': 'Point',
+            'coordinates': [parseFloat(coord_i[0]), parseFloat(coord_i[1])]
+          }
+        };
+        stops_ord.features.push(feat);
+      }
+      console.log(stops_ord);//console log of the clustered points
+
     }
 
     //------------End function definition-------------//
