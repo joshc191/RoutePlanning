@@ -261,6 +261,7 @@
         }
       });
 
+      // Re-order stops into their optimal order using travelling salesman solution
       var response2 = await fetch("/reorder_stops/" + stops.toString());
       stops_json = await response2.json();
 
