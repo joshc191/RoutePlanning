@@ -21,6 +21,9 @@
   <!-- <link rel="stylesheet" href="styles.css"> -->
   <link rel="stylesheet" href="{{ url_for('static', filename='styles/styles.css') }}">
 
+  <!-- Import jQuery -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
   <title>ENGO 551 Final Project</title>
 </head>
 
@@ -118,6 +121,7 @@
       }
 
       var mycount = 0;
+      console.log(bigdata);
       for (i = 0; i < bigdata.features.length;i++) {//Adjusted feat collection to work with turf
         mycount= mycount+1;
 
@@ -182,6 +186,34 @@
       clusterStops(AdjFeatCollec);
     };
 
+    // Function to plot a list of coordinates as a linestring
+    /*function addRoute2(coords) {
+      if (typeof map.getLayer('route2') !== 'undefined')  {
+        map.removeLayer('route2').removeSource('route2');
+      }
+      map.addLayer({
+        "id": "route2",
+        "type": "line",
+        "source": {
+          "type": "geojson",
+          "data": {
+            "type": "Feature",
+            "properties": {},
+            "geometry": {"coordinates": coords, "type": "LineString"}
+          }
+        },
+        "layout": {
+          "line-join": "round",
+          "line-cap": "round"
+        },
+        "paint": {
+          "line-color": "#03AA46",
+          "line-width": 8,
+          "line-opacity": 0.8
+        }
+      });
+    }*/
+
     // Cluster addresses into stops using K-means Clustering
     async function clusterStops(AdjFeatCollec) {
       //var points = turf.randomPoint(100, {bbox: [ -114.304388, 50.853, -113.865450,51.215771]}); //test data
@@ -217,7 +249,6 @@
         values.features.push(feat);
         stops.push(cluster.features[0].properties.centroid);
       }
-      console.log(values);//console log of the clustered points
 
       // Add stop markers to map
 
@@ -270,84 +301,74 @@
       stops_str = stops_str.replace(/\]/g, '');
       stops_str = stops_str.split("\n");
 
-      var stops_ord = {type: 'FeatureCollection',features: []};
-      for (i = 0; i < stops_str.length; i++) {//Adding individual geojson urls to  a single feat collection
+      var stops_ord = [];
+      for (i = 0; i < stops_str.length; i++) {  //Adding coordinates to array
         let coord_i = stops_str[i].split("   ");
-        let feat = {
-          'type': 'Feature',
-          'properties': {
-            'Name': 'Stop ' + i.toString()
-          },
-          'geometry': {
-            'type': 'Point',
-            'coordinates': [parseFloat(coord_i[0]), parseFloat(coord_i[1])]
-          }
-        };
-        stops_ord.features.push(feat);
+        let coord = [parseFloat(coord_i[0]), parseFloat(coord_i[1])];
+        stops_ord.push(coord);
       }
-      console.log(stops_ord);//console log of the clustered points
-
+      // addRoute2(stops_ord);
+      updateRoute(stops_ord);
     }
 
     //function to format the coordinates so it can be used in map matching query
-    function updateRoute() {
+    function updateRoute(stops_ord) {
       //set profile
       var profile = "driving";
       //get coords that were drawn (need to replace with coordinates)
       var data = stops_ord;
-      var lastFeature = data.features.length - 1;
-      var coords = data.features[lastFeature].geometry.coordinates;
       //Format the new coordinates
-      var newCoords = coords.join(';');
+      var newCoords = data.join(';');
       //set radius for each coordinate pair as 25 meters
       var radius = [];
-      coords.forEach(element => {
-        radius.push(25);
+      data.forEach(element => {
+        radius.push(600);
       });
       getMatch(newCoords,radius,profile)
     }
 
     function getMatch(coordinates, radius, profile) {
       var radiuses = radius.join(';');
-      var query = 'https://api.mapbox.com/matching/v5/mapbox/' + profile + '/' + coordinates + '?geometries=geojson&radiuses=' + radiuses + '&steps=true&access_token=' + mapboxgl.accessToken;
+      var query = 'https://api.mapbox.com/directions/v5/mapbox/' + profile + '/' + coordinates + '?geometries=geojson&radiuses=' + radiuses + '&steps=true&access_token=' + mapboxgl.accessToken;
+      console.log(query);
+
       $.ajax({
         method: 'GET',
         url: query
       }).done(function(data) {
         //get coordinates from response
-        var coords = data.matching[0].geometry;
-        //console.log(coords);
-        addRoute(coords)
+        var coords = data.routes[0].geometry;
+        addRoute(coords);
       });
     }
 
     function addRoute(coords) {
-      if (map.getSource('route')) {
-        map.removeLayer('route')
-        map.removeSource('route')
-      } else {
-        map.addLayer({
-          "id": "route",
-          "type": "line",
-          "source": {
-            "type": "geojson",
-            "data": {
-              "type": "Feature",
-              "properties": {},
-              "geometry": coords
-            }
-          },
-          "layout": {
-            "line-join": "round",
-            "line-cap": "round"
-          },
-          "paint": {
-            "line-color": "#03AA46",
-            "line-width": 8,
-            "line-opacity": 0.8
+      if (typeof map.getLayer('route') !== 'undefined')  {
+        map.removeLayer('route').removeSource('route');
+      }
+      map.addLayer({
+        "id": "route",
+        "type": "line",
+        "source": {
+          "type": "geojson",
+          "data": {
+            "type": "Feature",
+            "properties": {},
+            "geometry": coords
           }
-        });
-      };
+        },
+        "layout": {
+          "line-join": "round",
+          "line-cap": "round"
+        },
+        "paint": {
+          "line-color": "#03AA46",
+          "line-width": 8,
+          "line-opacity": 0.8
+        }
+      });
+
+
     }
     //------------End function definition-------------//
 
