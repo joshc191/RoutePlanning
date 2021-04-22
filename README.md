@@ -19,9 +19,9 @@ The website also has a RESTful API backend, where users can make GET requests to
 4. Run ```pip3 install -r requirements.txt``` to install all necessary Python packages.
 5. Set the environment variable ```FLASK_APP``` to be ```application.py```.
     - Windows: ```set FLASK_APP=application.py```
-    - Mac/Linux: ```export FLASK_APP=application.py```
-  If debugging, run ```set FLASK_DEBUG=1``` to automatically update the website when changes are made.
-6. Run ```flask run``` to start the Flask application.
+    - Mac/Linux: ```export FLASK_APP=application.py```  
+6. Optionally, if debugging, run ```set FLASK_DEBUG=1``` to automatically update the website when changes are made.
+7. Run ```flask run``` to start the Flask application.
 
 ## TO DO
 - Design website (CSS)
