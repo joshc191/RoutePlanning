@@ -338,6 +338,7 @@
       }).done(function(data) {
         //get coordinates from response
         var coords = data.routes[0].geometry;
+        console.log(data.routes[0]);
         addRoute(coords);
       });
     }

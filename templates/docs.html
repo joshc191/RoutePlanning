@@ -8,7 +8,7 @@
   <!--navigation bar-->
   <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #e3f2fd;">
     <a class="navbar-brand" href="index.html">
-      <img src="delivery.png" height="60" width="60" alt="">
+      <img src="{{ url_for('static', filename='delivery.png') }}" height="60" width="60" alt="">
       Route Planning for Mobile Grocery Store
     </a>
   </nav>
@@ -17,24 +17,258 @@
   <div>
     <h2>Introduction</h2>
     <p>This webpage walks through how to use this website's API endpoint.
-      Users may make a request using the base path <b>/api/</b> to perform the route planning instead of using the website's main page.</p>
+      Users may make a request using the path <b>[website_path]/api?[query]</b> to perform the route planning instead of using the website's main page.</p>
   </div>
   <div>
     <h2>How to Use</h2>
-    <p> In the website URL, parameters 'addresslist' and 'stopnum' can be configured to perform K-means clustering and route planning. <br>
+    <p> In the website URL, parameters 'addresslist' and 'stopnum' can be configured to perform K-means clustering and route planning.</p>
+      <h3>Input Parameters</h3>
       <ul>
         <li>addresslist: in quotes, list customer/reservation addresses. Addresses should be separated by commas.</li>
         <li>stopnum: provide desired number of truck stops. Must be an integer. </li>
       </ul>
-    </p>
+      <h3>Outputs</h3>
+      <ul>
+        <li>A GeoJSON linestring defining the route that the truck should take. The route is defined using a list of coordinates, as well as step-by-step directions.</li>
+      </ul>
+      <p> The linestring's format is as follows: <pre>
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "LineString",
+            "coordinates": [INSERT ROUTE COORDINATES HERE]
+          },
+          "properties": {
+            "directions": [INSERT DIRECTIONS HERE]
+          }
+        }<pre>
+      </p>
   </div>
   <div>
     <h2>Example</h2>
     <h3>Input</h3>
-    <p>/api/?addresslist='11650 18 ST NE, 390 SADDLECREST CI NE, 165 SADDLEHORN CR NE, 1228 CORNERSTONE WY NE, 61 CORNER MEADOWS GD NE, 161 SADDLELAKE TC NE, 23 HARVEST ROSE CI NE, 355 CORNER MEADOWS AV NE, 54 SAVANNA DR NE, 2312 MILLWARD RD NE, 2720 CENTRE ST NE, 42 TEMPLE PL NE, 75 CITYSCAPE GV NE, 119 TEMPLEVALE PL NE'&stopnum=5
+    <p>/api?addresslist='11650 18 ST NE, 390 SADDLECREST CI NE, 165 SADDLEHORN CR NE, 1228 CORNERSTONE WY NE, 61 CORNER MEADOWS GD NE, 161 SADDLELAKE TC NE, 23 HARVEST ROSE CI NE, 355 CORNER MEADOWS AV NE, 54 SAVANNA DR NE, 2312 MILLWARD RD NE, 2720 CENTRE ST NE, 42 TEMPLE PL NE, 75 CITYSCAPE GV NE, 119 TEMPLEVALE PL NE'&stopnum=5
     </p>
     <h3>Output</h3>
-    <p>INSERT OUTPUT
+    <p><pre>{
+  "geometry": {
+    "coordinates": [
+      [
+        -114.016501,
+        51.15778
+      ],
+      [
+        -114.016563,
+        51.157235
+      ],
+      [
+        -114.024939,
+        51.157217
+      ],
+      [
+        -114.027031,
+        51.157847
+      ],
+      [
+        -114.028184,
+        51.154214
+      ],
+      [
+        -113.982219,
+        51.154234
+      ],
+      [
+        -113.981732,
+        51.131879
+      ],
+      [
+        -113.969126,
+        51.132597
+      ],
+      [
+        -113.940954,
+        51.132462
+      ],
+      [
+        -113.93923,
+        51.129557
+      ],
+      [
+        -113.929666,
+        51.129635
+      ],
+      [
+        -113.929441,
+        51.131304
+      ],
+      [
+        -113.923793,
+        51.131366
+      ],
+      [
+        -113.92387,
+        51.132092
+      ],
+      [
+        -113.926007,
+        51.132135
+      ],
+      [
+        -113.925937,
+        51.13118
+      ],
+      [
+        -113.929441,
+        51.131304
+      ],
+      [
+        -113.931157,
+        51.134609
+      ],
+      [
+        -113.930414,
+        51.136333
+      ],
+      [
+        -113.932586,
+        51.137114
+      ],
+      [
+        -113.93815,
+        51.137421
+      ],
+      [
+        -113.938054,
+        51.13583
+      ],
+      [
+        -113.941312,
+        51.13583
+      ],
+      [
+        -113.942015,
+        51.134452
+      ],
+      [
+        -113.940986,
+        51.13297
+      ],
+      [
+        -113.945085,
+        51.132586
+      ],
+      [
+        -113.946837,
+        51.132412
+      ],
+      [
+        -113.946864,
+        51.129873
+      ],
+      [
+        -113.949654,
+        51.129242
+      ],
+      [
+        -113.949857,
+        51.129779
+      ],
+      [
+        -113.94988,
+        51.130543
+      ],
+      [
+        -113.951108,
+        51.130537
+      ],
+      [
+        -113.95083,
+        51.128896
+      ],
+      [
+        -113.952074,
+        51.128508
+      ],
+      [
+        -113.952348,
+        51.132577
+      ],
+      [
+        -113.970674,
+        51.132635
+      ],
+      [
+        -113.981562,
+        51.132043
+      ],
+      [
+        -113.981663,
+        51.154403
+      ],
+      [
+        -114.027143,
+        51.154395
+      ],
+      [
+        -114.028006,
+        51.154634
+      ],
+      [
+        -114.027273,
+        51.157329
+      ],
+      [
+        -114.016563,
+        51.157235
+      ],
+      [
+        -114.016501,
+        51.15778
+      ],
+      [
+        -114.016533,
+        51.161636
+      ],
+      [
+        -114.024839,
+        51.161683
+      ],
+      [
+        -114.02787,
+        51.15671
+      ],
+      [
+        -114.028184,
+        51.154214
+      ],
+      [
+        -113.929162,
+        51.154334
+      ],
+      [
+        -113.925982,
+        51.154166
+      ],
+      [
+        -113.923335,
+        51.153266
+      ],
+      [
+        -113.922064,
+        51.152051
+      ],
+      [
+        -113.921727,
+        51.149497
+      ]
+    ],
+    "type": "LineString"
+  },
+  "properties": {
+    "directions": "Drive south on 18 Street NE.\nTurn right onto 115 Avenue NE.\nTurn left onto 14 Street NE.\nTurn left onto Country Hills Boulevard NE.\nTurn right onto 36 Street NE.\nTurn left onto 88 Avenue NE.\nTurn right onto Saddleland Drive NE.\nTurn left onto Saddlemont Boulevard NE.\nEnter the roundabout and take the 2nd exit onto Saddlebrook Drive NE.\nTurn right onto Saddlelake Way NE.\nYour destination is on the right.\nDrive northwest on Saddlelake Terrace NE.\nTurn right onto Saddlelake Way NE.\nTurn right onto Saddlebrook Drive NE.\nTurn left onto Saddlecrest Boulevard NE.\nTurn left onto Saddlecrest Terrace NE.\nYour destination is on the left.\nDrive west on Saddlecrest Terrace NE.\nTurn left onto Saddlecrest Park NE.\nTurn left onto Saddlecrest Boulevard NE.\nTurn right onto 88 Avenue NE.\nTurn left onto 60 Street NE.\nTurn right onto Saddlehorn Drive NE.\nTurn right onto Saddlehorn Crescent NE.\nYour destination is on the right.\nDrive north on Saddlehorn Crescent NE.\nTurn right onto Saddlehorn Drive NE.\nTurn right onto Saddleridge Drive NE.\nTurn left onto 88 Avenue NE.\nTurn right onto 36 Street NE.\nTurn left onto Country Hills Boulevard NE.\nTurn right onto 14 Street NE.\nTurn right onto 115 Avenue NE.\nTurn left onto 18 Street NE.\nYour destination is on the right.\nDrive north on 18 Street NE.\nTurn left onto 120 Avenue NE.\nTurn left onto 14 Street NE.\nTurn left onto Country Hills Boulevard NE.\nTake the 201 South/Stoney Trail exit.\nYour destination is on the right."
+  },<pre>
+  "type": "Feature"
+}
     </p>
 
   </div>

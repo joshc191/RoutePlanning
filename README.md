@@ -12,22 +12,30 @@ The website's main page contains a webmap of Calgary, along with a form.
 
 The website also has a RESTful API backend, where users can make GET requests to the website by providing a list of addresses and number of stops. The website will output a list of coordinates for the route stops.
 
-## TO DO
+## How to run
+1. Install a copy of [Python](https://www.python.org/downloads/) if you haven't already. Version 3.6 or higher is recommended
+2. Install [pip](https://pip.pypa.io/en/stable/installing/) if you haven't already.
+3. Download/pull repository
+4. Run ```pip3 install -r requirements.txt``` to install all necessary Python packages.
+5. Set the environment variable ```FLASK_APP``` to be ```application.py```.
+    - Windows: ```set FLASK_APP=application.py```
+    - Mac/Linux: ```export FLASK_APP=application.py```
+  If debugging, run ```set FLASK_DEBUG=1``` to automatically update the website when changes are made.
+6. Run ```flask run``` to start the Flask application.
 
+## TO DO
 - Design website (CSS)
-- Set up flask
 
 - index.html
-  - Get Mapbox directions through each stop
   - Add sidebar for directions + route travel time
 
 - API.html
-  - Get directions from stops using directions API
 
 - API_docs.html
   - Document API
 
 - Misc
+  - Add links for navigation bar
   - Improve csv reader
     - Handle blank lines at end of files
     - Handle invalid addresses

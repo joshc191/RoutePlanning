@@ -65,35 +65,29 @@ def getRouteOrder(solution, routing, manager):
     return routes
 
 
-def getRoute(query):
-    """Get truck route from the user's query."""
-    # get parameters from query
-    parsed = urlparse.urlparse(query)
-    parsed_q = parse_qs(parsed.query)
-    addresslist = parsed_q['addresslist'][0]
-    stopnum = int(parsed_q['stopnum'][0])
+def getRoute(addresses, stopnum):
+    """Get truck route using addresses and number of stops."""
 
-    # separate addresses in addresslist
-    addresslist = addresslist.replace('\'', '')  # Remove apostrophes
-    addresslist = addresslist.replace('\"', '')  # Remove quotes
-    addresslist_spl = addresslist.split(", ")
-    if len(addresslist_spl) < 2:
-        addresslist_spl = addresslist.split(",")
-    addresslist = addresslist_spl
+    # separate addresses in addresses
+    addresses = addresses.replace('\'', '')  # Remove apostrophes
+    addresses = addresses.replace('\"', '')  # Remove quotes
+    addresses_spl = addresses.split(", ")
+    if len(addresses_spl) < 2:
+        addresses_spl = addresses.split(",")
+    addresses = addresses_spl
 
-    # get coordinates of addresses in addresslist
+    # get coordinates of addresses in addresses
     coordslist = []
-    for address in addresslist:
+    for address in addresses:
         parceldata = getcoords(address)
         coordslist.append(parceldata['features'][0]['geometry']['coordinates'])
 
-    # do kmeans clustering to get stops from addresslist
-    kmeans = KMeans(n_clusters=stopnum, random_state=0).fit(np.array(coordslist))
+    # do kmeans clustering to get stops from addresses
+    kmeans = KMeans(n_clusters=int(stopnum), random_state=0).fit(np.array(coordslist))
     stops = kmeans.cluster_centers_
 
     # add first address in address list (ie where the truck starts the day)
     stops2 = np.insert(stops, 0, coordslist[0], axis=0)
-    print(stops2)
 
     # Solve travelling salesman problem to re-order stops into optimal order
     stops_ordered = travellingSalesman(stops2)
@@ -112,14 +106,53 @@ def coordStringtoDouble(string):
     return coords
 
 
-def main():
-    """Test function defined above"""
-    # query = '?addresslist=\'11650 18 ST NE, 390 SADDLECREST CI NE, 165 SADDLEHORN CR NE, 1228 CORNERSTONE WY NE, 61 CORNER MEADOWS GD NE, 161 SADDLELAKE TC NE, 23 HARVEST ROSE CI NE, 355 CORNER MEADOWS AV NE, 54 SAVANNA DR NE, 2312 MILLWARD RD NE, 2720 CENTRE ST NE, 42 TEMPLE PL NE, 75 CITYSCAPE GV NE, 119 TEMPLEVALE PL NE\'&stopnum=5'
-    # route = getRoute(query)
+def getDirections(coords):
+    # convert coordinates to string
+    coords_str = ""
+    for i in range(len(coords)):
+        coords_str = coords_str + str(coords[i, 0]) + ',' + str(coords[i, 1]) + ';'
+    coords_str = coords_str[:-1]
 
-    coords = coordStringtoDouble('-114.04556762766781,51.1256171832884,-113.93705706740492,51.13238575074399,-113.96809112063988,51.07894723738647,-113.92696893267832,51.14948303565794,-113.96568985100154,51.1444119580011')
-    route = travellingSalesman(coords)
-    print(route)
+    # define radiuses and profile for map matching
+    radius = ""
+    for i in range(len(coords)):
+        radius = radius + '600;'
+    radius = radius[:-1]
+
+    profile = "driving"
+
+    # define mapbox gl access token
+    accessToken = accessToken = 'pk.eyJ1IjoiY2hyaXNrY2NobyIsImEiOiJja200ZGE3YzEwM2hhMm9wbThweHVpbmdnIn0.WK32LPKYrtmevgs6emkIrQ'
+
+    # Create URL for GET request
+    query = 'https://api.mapbox.com/directions/v5/mapbox/' + profile + '/' + coords_str + '?geometries=geojson&radiuses=' + radius + '&steps=true&access_token=' + accessToken;
+    res = requests.get(query)
+    if res.status_code != 200:
+        raise Exception("Error: API request unsuccessful.")
+    data = res.json()
+    # Get route (linestring)
+    route = data["routes"][0]["geometry"]["coordinates"]
+
+    # Get trip instructions
+    instructions = []
+    for inst in data["routes"][0]["legs"]:
+        steps = inst["steps"]
+        for step in steps:
+            instructions.append(step["maneuver"]["instruction"])
+
+    inst_str = '\n'.join(instructions)
+    return route, inst_str
+
+
+"""
+def main():
+    query = '?addresslist=\'11650 18 ST NE, 390 SADDLECREST CI NE, 165 SADDLEHORN CR NE, 1228 CORNERSTONE WY NE, 61 CORNER MEADOWS GD NE, 161 SADDLELAKE TC NE, 23 HARVEST ROSE CI NE, 355 CORNER MEADOWS AV NE, 54 SAVANNA DR NE, 2312 MILLWARD RD NE, 2720 CENTRE ST NE, 42 TEMPLE PL NE, 75 CITYSCAPE GV NE, 119 TEMPLEVALE PL NE\'&stopnum=5'
+    route = getRoute(query)
+
+    # coords = coordStringtoDouble('-114.04556762766781,51.1256171832884,-113.93705706740492,51.13238575074399,-113.96809112063988,51.07894723738647,-113.92696893267832,51.14948303565794,-113.96568985100154,51.1444119580011')
+    # route = travellingSalesman(coords)
+    route_opt, inst = getDirections(route)
 
 if __name__ == "__main__":
     main()
+"""
