@@ -2,6 +2,10 @@
 height:600px;
 }
 
+.wrapper {
+  position: relative;
+}
+
 #directions {
   position: absolute;
   margin: 20px;
