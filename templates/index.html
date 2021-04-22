@@ -64,6 +64,8 @@
         <span id="AddressFindError"></span>
       </div>
     </font>
+
+    <div id="directions"></div>
     </div>
 
 
@@ -383,6 +385,7 @@
         //get coordinates from response
         var coords = data.routes[0].geometry;
         addRoute(coords);
+        getInstructions(data.matchings[0]);
       });
     }
 
@@ -414,6 +417,19 @@
 
 
     }
+
+    function getInstructions(data) {
+      var directions = document.getElementById('directions');
+      var legs = data.legs;
+      var tripDirections = [];
+      for (var i = 0; i < legs.length; i++) {
+        var steps = legs[i].steps;
+        for (var j = 0; j < steps.length; j++) {
+          tripDirections.push('<br><li>'+steps[j].maneuver.instruction) + '</li>';
+        }
+      }
+      directions.innerHTML = '<br><h2>Trip duration: ' + Math.floor(data.duration/60) + ' min.</h2>' + tripDirections;
+    }
     //------------End function definition-------------//
 
     // Get file containing list of addresses
@@ -424,3 +440,4 @@
     </script>
   </body>
   </html>
+
