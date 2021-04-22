@@ -135,10 +135,19 @@
           checkGrocery(addresslist[i]); // If not grocery store, then give warning message.
         }
 
-        if (typeof data1.features[0] === 'undefined') {  // Check if address is found in the database
+        // If address is not in the database & it's the first address, check the business licences database
+        if (typeof data1.features[0] === 'undefined' && i == 0) {
+          response = await fetch('https://data.calgary.ca/resource/vdjc-pybd.geojson?$where=address=\'' + addresslist[i] + '\'');
+          data1 = await response2.json();
+        }
+
+        // If coordinate couldn't be found
+        if (typeof data1.features[0] === 'undefined') {
+          // Return error
           error = "Error: Address " + i + " (" + addresslist[i] + ") was excluded because its coordinates could not be found."
           document.getElementById("AddressFindError").innerHTML += error + '<br>';
         } else {
+          // Otherwise, add the coordinate to the list
           bigdata.features.push(data1.features[0]);
         }
       }
@@ -247,7 +256,7 @@
 
     // Check if address is a grocery store
     async function checkGrocery(address)  {
-      var base_url = 'https://data.calgary.ca/resource/vdjc-pybd.json?$where=licensetypes=\'FOOD SERVICE - PREMISES\'&address =\'' + address + '\'';
+      var base_url = 'https://data.calgary.ca/resource/vdjc-pybd.json?$where=licencetypes=\'FOOD SERVICE - PREMISES\'&address =\'' + address + '\'';
       let response = await fetch(url4edit);
       var data1 = await response.json();
       if (typeof data1[0] === 'undefined')  {
@@ -385,7 +394,7 @@
         //get coordinates from response
         var coords = data.routes[0].geometry;
         addRoute(coords);
-        getInstructions(data.matchings[0]);
+        getInstructions(data.routes[0]);
       });
     }
 
@@ -414,8 +423,6 @@
           "line-opacity": 0.8
         }
       });
-
-
     }
 
     function getInstructions(data) {
@@ -440,4 +447,3 @@
     </script>
   </body>
   </html>
-
