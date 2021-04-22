@@ -23,15 +23,20 @@ The website also has a RESTful API backend, where users can make GET requests to
 6. Optionally, if debugging, run ```set FLASK_DEBUG=1``` to automatically update the website when changes are made.
 7. Run ```flask run``` to start the Flask application.
 
-## TO DO
-- Design website (CSS)
+## Contents
+- application.py: main script for Flask application
+- functions.py: function definitions for application.py
+- requirements.txt: lists packages needed to run application
+- static: contains assest for html pages
+  - styles
+    - styles.css: defines styles in index.html
+- templates: contains html templates for flask app
+  - index.html: template for website's main page
+  - docs.html: template for website's API documentation
 
+## TO DO
 - index.html
   - Add sidebar for directions + route travel time
-
-- API.html
-
-- API_docs.html
 
 - Misc
   - Add link to docs.html in navigation bar
