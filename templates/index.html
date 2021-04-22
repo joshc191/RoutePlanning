@@ -34,8 +34,11 @@
       <!-- <img src="delivery.png" height="60" width="60" alt=""> -->
       <img src="{{ url_for('static', filename='delivery.png') }}" height="60" width="60" alt="">
       Route Planning for Mobile Grocery Store
+      <a href="/docs"> RESTFUL API</a>
     </a>
   </nav>
+
+
 
   <div class="row">
     <div class="col-md-3">
@@ -65,15 +68,16 @@
       </div>
     </font>
 
-    <div id="directions"></div>
     </div>
 
 
     <!-- Add map container element -->
     <div class="col-md-9">
-      <div id="map"></div>
+        <div id="map"></div>
     </div>
+     <div id="directions"></div>
   </div>
+ 
 
   <script>
     // Create map container
@@ -84,6 +88,7 @@
       center: [-114.0719,51.0447],
       zoom: 12
     });
+    
 
     //-------------Define Functions------------------//
 
