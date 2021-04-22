@@ -256,8 +256,9 @@
 
     // Cluster addresses into stops using K-means Clustering
     async function clusterStops(AdjFeatCollec) {
-
       var points = AdjFeatCollec;
+      points.features.shift();
+      console.log(points);
       var stopnum = document.getElementById("stopnum").value;   // Get number of stops
 
       if (stopnum > points.features.length) {

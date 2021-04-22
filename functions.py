@@ -82,6 +82,11 @@ def getRoute(addresses, stopnum):
         parceldata = getcoords(address)
         coordslist.append(parceldata['features'][0]['geometry']['coordinates'])
 
+    # Remove first element of coordslist (don't include start location in clustering)
+    print(coordslist)
+    coordslist.pop(0)
+    print(coordslist)
+
     # do kmeans clustering to get stops from addresses
     kmeans = KMeans(n_clusters=int(stopnum), random_state=0).fit(np.array(coordslist))
     stops = kmeans.cluster_centers_
@@ -146,12 +151,12 @@ def getDirections(coords):
 
 """
 def main():
-    query = '?addresslist=\'11650 18 ST NE, 390 SADDLECREST CI NE, 165 SADDLEHORN CR NE, 1228 CORNERSTONE WY NE, 61 CORNER MEADOWS GD NE, 161 SADDLELAKE TC NE, 23 HARVEST ROSE CI NE, 355 CORNER MEADOWS AV NE, 54 SAVANNA DR NE, 2312 MILLWARD RD NE, 2720 CENTRE ST NE, 42 TEMPLE PL NE, 75 CITYSCAPE GV NE, 119 TEMPLEVALE PL NE\'&stopnum=5'
-    route = getRoute(query)
+    addresslist = '11650 18 ST NE, 390 SADDLECREST CI NE, 165 SADDLEHORN CR NE, 1228 CORNERSTONE WY NE, 61 CORNER MEADOWS GD NE, 161 SADDLELAKE TC NE, 23 HARVEST ROSE CI NE, 355 CORNER MEADOWS AV NE, 54 SAVANNA DR NE, 2312 MILLWARD RD NE, 2720 CENTRE ST NE, 42 TEMPLE PL NE, 75 CITYSCAPE GV NE, 119 TEMPLEVALE PL NE'
+    route = getRoute(addresslist, 5)
 
     # coords = coordStringtoDouble('-114.04556762766781,51.1256171832884,-113.93705706740492,51.13238575074399,-113.96809112063988,51.07894723738647,-113.92696893267832,51.14948303565794,-113.96568985100154,51.1444119580011')
     # route = travellingSalesman(coords)
-    route_opt, inst = getDirections(route)
+    # route_opt, inst = getDirections(route)
 
 if __name__ == "__main__":
     main()
