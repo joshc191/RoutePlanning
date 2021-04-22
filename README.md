@@ -33,6 +33,7 @@ The website also has a RESTful API backend, where users can make GET requests to
 - templates: contains html templates for flask app
   - index.html: template for website's main page
   - docs.html: template for website's API documentation
+- csv files (sample_addresslist.csv, sample_addresslist2.csv, etc): Sample address lists for website
 
 ## TO DO
 - index.html
