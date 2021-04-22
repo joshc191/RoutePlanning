@@ -43,6 +43,7 @@ The website also has a RESTful API backend, where users can make GET requests to
   - Add link to docs.html in navigation bar
   - Add table/widget to allow for address list changes within website
   - Add error handling for incorrect API calls
+  - Handle error when first address can't be found
 
 - Current Bugs
 

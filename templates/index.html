@@ -174,7 +174,6 @@
       // Remove existing layer
       if (typeof map.getLayer('points') !== 'undefined')  {
         map.removeLayer('points').removeSource('points');
-        popup.remove();
       }
 
       // Add data source
@@ -203,6 +202,10 @@
         }
       });
 
+      // Remove existing popups
+      if (typeof popup !== 'undefined')  {
+        popup.remove();
+      }
       // Add popups
       var popup = new mapboxgl.Popup();
       map.on('click', 'points', function(e) {
