@@ -72,6 +72,8 @@
     <!-- Add map container element -->
     <div class="col-md-9">
       <div id="map"></div>
+      <div class="info-box">
+        <div id="directions"></div>
     </div>
   </div>
 
@@ -385,7 +387,7 @@
         //get coordinates from response
         var coords = data.routes[0].geometry;
         addRoute(coords);
-        getInstructions(data.matchings[0]);
+        getInstructions(data.routes[0]);
       });
     }
 
