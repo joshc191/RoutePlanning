@@ -12,7 +12,17 @@ import requests
 
 def getcoords(address):
     """Get GeoJSON information for a parcel by sending GET request to OpenCalgary Parcel Address Dataset."""
-    link = "https://data.calgary.ca/resource/9zvu-p8uz.geojson?$q=" + "\'" + address + "\'";
+    link = "https://data.calgary.ca/resource/9zvu-p8uz.geojson?$q=" + "\'" + address + "\'"
+    res = requests.get(link)
+    if res.status_code != 200:
+        raise Exception("Error: API request unsuccessful.")
+    data = res.json()
+    return data
+
+
+def getcoords2(address):
+    """Get GeoJSON information for a store by sending GET request to OpenCalgary Parcel Address Dataset."""
+    link = "https://data.calgary.ca/resource/vdjc-pybd.geojson?$where=licencetypes='FOOD SERVICE - PREMISES'&address=" + address + "'"
     res = requests.get(link)
     if res.status_code != 200:
         raise Exception("Error: API request unsuccessful.")
@@ -78,14 +88,15 @@ def getRoute(addresses, stopnum):
 
     # get coordinates of addresses in addresses
     coordslist = []
-    for address in addresses:
+    for i, address in enumerate(addresses):
         parceldata = getcoords(address)
-        coordslist.append(parceldata['features'][0]['geometry']['coordinates'])
+        if parceldata['features'] is None and i == 0:
+            parceldata = getcoords2(address)
+        if parceldata['features'] is not None:
+            coordslist.append(parceldata['features'][0]['geometry']['coordinates'])
 
     # Remove first element of coordslist (don't include start location in clustering)
-    print(coordslist)
     coordslist.pop(0)
-    print(coordslist)
 
     # do kmeans clustering to get stops from addresses
     kmeans = KMeans(n_clusters=int(stopnum), random_state=0).fit(np.array(coordslist))
