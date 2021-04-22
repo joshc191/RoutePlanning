@@ -120,7 +120,7 @@
     function getlink (address) {
       let link = "https://data.calgary.ca/resource/9zvu-p8uz.geojson?$q=";
       link+= "'";
-      link+= address;
+      link+= address.replace('#','');
       link+="'";
       return link;
     };
@@ -142,7 +142,7 @@
 
         // If address is not in the database & it's the first address, check the business licences database
         if (typeof data1.features[0] === 'undefined' && i == 0) {
-          response = await fetch('https://data.calgary.ca/resource/vdjc-pybd.geojson?$where=address=\'' + addresslist[i] + '\'');
+          response = await fetch('https://data.calgary.ca/resource/vdjc-pybd.geojson?$q=\'' + addresslist[i].replace('#','') + '\'');
           data1 = await response.json();
         }
 
@@ -261,9 +261,10 @@
 
     // Check if address is a grocery store
     async function checkGrocery(address)  {
-      var url= 'https://data.calgary.ca/resource/vdjc-pybd.json?$where=licencetypes=\'FOOD SERVICE - PREMISES\'&address=\'' + address + '\'';
+      var url= 'https://data.calgary.ca/resource/vdjc-pybd.json?$query=SELECT address WHERE licencetypes = \'FOOD SERVICE - PREMISES\' AND address like \'' + encodeURIComponent("%") + address.replace('#','') + encodeURIComponent("%") + '\'';
       let response1 = await fetch(url);
       var data1 = await response1.json();
+      console.log(data1);
       if (typeof data1[0] === 'undefined')  {
         var warning = "Warning: The first address submitted doesn\'t seem to be a grocery store. Ensure your first address is the truck's starting location."
         document.getElementById("AddressFindError").innerHTML += warning + '<br>';
@@ -274,7 +275,6 @@
     async function clusterStops(AdjFeatCollec) {
       var points = AdjFeatCollec;
       points.features.shift();
-      console.log(points);
       var stopnum = document.getElementById("stopnum").value;   // Get number of stops
 
       if (stopnum > points.features.length) {
@@ -390,7 +390,6 @@
     function getMatch(coordinates, radius, profile) {
       var radiuses = radius.join(';');
       var query = 'https://api.mapbox.com/directions/v5/mapbox/' + profile + '/' + coordinates + '?geometries=geojson&radiuses=' + radiuses + '&steps=true&access_token=' + mapboxgl.accessToken;
-      console.log(query);
 
       $.ajax({
         method: 'GET',
