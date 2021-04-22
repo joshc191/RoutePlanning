@@ -128,6 +128,11 @@
 
         const response = await fetch(url4edit);
         var data1 = await response.json();
+
+        if (i==0)  { // Check if the first address is a grocery store
+          checkGrocery(addresslist[i]); // If not grocery store, then give warning message.
+        }
+
         if (typeof data1.features[0] === 'undefined') {  // Check if address is found in the database
           error = "Error: Address " + i + " (" + addresslist[i] + ") was excluded because its coordinates could not be found."
           document.getElementById("AddressFindError").innerHTML += error + '<br>';
@@ -235,6 +240,17 @@
 
       clusterStops(AdjFeatCollec);
     };
+
+    // Check if address is a grocery store
+    async function checkGrocery(address)  {
+      var base_url = 'https://data.calgary.ca/resource/vdjc-pybd.json?$where=licensetypes=\'FOOD SERVICE - PREMISES\'&address =\'' + address + '\'';
+      let response = await fetch(url4edit);
+      var data1 = await response.json();
+      if (typeof data1[0] === 'undefined')  {
+        var warning = "Warning: The first address submitted doesn\'t seem to be a grocery store. Ensure your first address is the truck's starting location."
+        document.getElementById("AddressFindError").innerHTML += warning + '<br>';
+      }
+    }
 
     // Function to plot a list of coordinates as a linestring
     /*function addRoute2(coords) {
