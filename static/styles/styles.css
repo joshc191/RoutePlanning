@@ -6,6 +6,10 @@ height:600px;
   position: relative;
 }
 
+.col-md-9 {
+  position: relative;
+}
+
 #directions {
   position: absolute;
   margin: 20px;
