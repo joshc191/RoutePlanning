@@ -1,8 +1,10 @@
 #map {
 height:600px;
+position: absolute;
+  
 }
 
-.info-box {
+#directions {
   position: absolute;
   margin: 20px;
   width: 25%;
