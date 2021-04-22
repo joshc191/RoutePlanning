@@ -32,17 +32,11 @@ The website also has a RESTful API backend, where users can make GET requests to
 - API.html
 
 - API_docs.html
-  - Document API
 
 - Misc
-  - Add links for navigation bar
-  - Improve csv reader
-    - Handle blank lines at end of files
-    - Handle invalid addresses
+  - Add link to docs.html in navigation bar
   - Add table/widget to allow for address list changes within website
-  - Add labels for address markers
   - Add error handling for incorrect API calls
-  - Add error handling when stop numbers exceed address number
 
 - Current Bugs
 

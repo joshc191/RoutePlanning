@@ -30,7 +30,7 @@
 <body>
   <!--navigation bar-->
   <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #e3f2fd;">
-    <a class="navbar-brand" href="index.html">
+    <a class="navbar-brand" href="/">
       <!-- <img src="delivery.png" height="60" width="60" alt=""> -->
       <img src="{{ url_for('static', filename='delivery.png') }}" height="60" width="60" alt="">
       Route Planning for Mobile Grocery Store
@@ -53,13 +53,19 @@
         </div>
         <div>
         <label for="stopnum">Number of stops:</label>
-        <input type="range" min="1" max="20" value="5" id="stopnum" name="stopnum"
+        <input type="range" min="2" max="20" value="5" id="stopnum" name="stopnum"
       	 step="1" oninput="outputUpdate(value)">
         <output for="stopnum" id="stopnum_out">5</output><br><br>
         </div>
         <button type='button' id='submit1'>submit</button>
       </form>
+      <font color="red">
+      <div>
+        <span id="AddressFindError"></span>
+      </div>
+    </font>
     </div>
+
 
     <!-- Add map container element -->
     <div class="col-md-9">
@@ -86,11 +92,16 @@
 
     // Function which reads file as text when called.
     async function readFile() {
+      document.getElementById("AddressFindError").innerHTML = '';  // Clear error log
+
       var reader = new FileReader();
       var inputform = document.getElementById("addresses");
       reader.onload = function () {
         let addressliststr = reader.result;
         var addresslist = addressliststr.split("\n");
+
+        // Remove blank spaces from csv
+        addresslist = addresslist.filter(function(entry) { return entry.trim() != ''; });
 
         var coords = getAddress(addresslist);
       };
@@ -117,7 +128,12 @@
 
         const response = await fetch(url4edit);
         var data1 = await response.json();
-        bigdata.features.push(data1.features[0]);
+        if (typeof data1.features[0] === 'undefined') {  // Check if address is found in the database
+          error = "Error: Address " + i + " (" + addresslist[i] + ") was excluded because its coordinates could not be found."
+          document.getElementById("AddressFindError").innerHTML += error + '<br>';
+        } else {
+          bigdata.features.push(data1.features[0]);
+        }
       }
 
       var mycount = 0;
@@ -140,9 +156,6 @@
         AdjFeatCollec.features.push(feat);
       };
 
-      console.log(AdjFeatCollec);//console log of the final of the loaded csv
-
-
       // Add addresses to map as markers
       if (!map.hasImage('custom-marker')) { // If the image hasn't been added yet
         map.loadImage('https://docs.mapbox.com/mapbox-gl-js/assets/custom_marker.png', function (error, image) {
@@ -156,6 +169,7 @@
       // Remove existing layer
       if (typeof map.getLayer('points') !== 'undefined')  {
         map.removeLayer('points').removeSource('points');
+        popup.remove();
       }
 
       // Add data source
@@ -183,6 +197,42 @@
           'text-anchor': 'top'
         }
       });
+
+      // Add popups
+      var popup = new mapboxgl.Popup();
+      map.on('click', 'points', function(e) {
+        var features = map.queryRenderedFeatures(e.point, { layers: ['points'] });
+
+        if (!features.length) {
+          popup.remove();
+          return;
+        }
+        var feature = features[0];
+        var coordinates = feature.geometry.coordinates;
+
+        // Ensure that if the map is zoomed out such that multiple
+        // copies of the feature are visible, the popup appears
+        // over the copy being pointed to.
+        while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+          coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+        }
+
+        popup.setLngLat(coordinates)
+          .setHTML(feature.properties.Address)
+          .addTo(map);
+      });
+
+      // Change the cursor to a pointer when the mouse is over the points layer.
+      map.on('mouseenter', 'points', function () {
+        map.getCanvas().style.cursor = 'pointer';
+      });
+
+      // Change it back to a pointer when it leaves.
+      map.on('mouseleave', 'points', function () {
+        map.getCanvas().style.cursor = '';
+      });
+
+
       clusterStops(AdjFeatCollec);
     };
 
@@ -216,12 +266,17 @@
 
     // Cluster addresses into stops using K-means Clustering
     async function clusterStops(AdjFeatCollec) {
-      //var points = turf.randomPoint(100, {bbox: [ -114.304388, 50.853, -113.865450,51.215771]}); //test data
 
       var points = AdjFeatCollec;
-      // console.log(points);//console log of the clustered points
-      var stopnum = document.getElementById("stopnum").value;
-      var options = {numberOfClusters: stopnum}; //amount of clusters, replace with user input
+      var stopnum = document.getElementById("stopnum").value;   // Get number of stops
+
+      if (stopnum > points.features.length) {
+        error = "Error: Number of stops exceeds number of addresses. Changing number of stops to match number of addresses. "
+        document.getElementById("AddressFindError").innerHTML += error + '<br>';
+        // Turf kmeans function automatically limits number of clusters. No need to change manually.
+      }
+
+      var options = {numberOfClusters: stopnum};
       var clustered = turf.clustersKmeans(points, options);
 
       var total = 0 //counting the number of clusters, remove once user input added
