@@ -41,4 +41,7 @@ The website also has a RESTful API backend, where users can make GET requests to
 - Current Bugs
 
 ## References
+- OpenCalgary [Parcel Addresses Dataset](https://data.calgary.ca/Base-Maps/Parcel-Address/9zvu-p8uz)
+- OpenCalgary [Business Licenses Dataset](https://dev.socrata.com/foundry/data.calgary.ca/vdjc-pybd)
 - Travelling Salesman Problem: [Google OR-Tools](https://developers.google.com/optimization/routing/tsp)
+- Mapbox [Directions API](https://docs.mapbox.com/api/navigation/directions/)
